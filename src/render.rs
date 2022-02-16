@@ -6,7 +6,7 @@ use pdf_writer::types::{
     TilingType,
 };
 use pdf_writer::writers::Shading;
-use pdf_writer::{Content, Filter, Finish, Name, PdfWriter, Rect, Ref, Writer};
+use pdf_writer::{Content, Filter, Finish, Name, PdfWriter, Ref, Writer};
 use usvg::{
     Align, AspectRatio, FillRule, ImageKind, LineCap, LineJoin, Node, NodeExt, NodeKind,
     Paint, PathSegment, Pattern, Transform, Units, ViewBox, Visibility,
@@ -554,12 +554,11 @@ impl Render for usvg::Image {
             let image_ref = ctx.alloc_ref();
 
             #[cfg(any(feature = "png", feature = "jpeg"))]
-            let set_image_props = |
-                image: &mut ImageXObject,
-                raster_size: &mut Option<(u32, u32)>,
-                decoded: &DynamicImage,
-                grey: bool,
-            | {
+            let set_image_props =
+                |image: &mut ImageXObject,
+            raster_size: &mut Option<(u32, u32)>,
+            decoded: &DynamicImage,
+            grey: bool| {
                 let color = decoded.color();
                 *raster_size = Some((decoded.width(), decoded.height()));
                 image.width(decoded.width() as i32);
@@ -699,16 +698,20 @@ impl Render for usvg::Image {
                     },
                     Some(self.view_box.aspect),
                 );
-
                 content.save_state();
-                content.transform([
-                    (width as f64 * converter.factor_x()) as f32,
-                    0.0,
-                    0.0,
-                    (height as f64 * converter.factor_y()) as f32,
-                    converter.offset_x() as f32,
-                    converter.offset_y() as f32,
-                ]);
+                {
+                    let pdf_height = height as f64 * converter.factor_y();
+                    let pdf_width = width as f64 * converter.factor_x();
+                    let bbox = ctx.c.pdf_rect(rect);
+                    content.transform([
+                        pdf_width as f32,
+                        0.0,
+                        0.0,
+                        pdf_height as f32,
+                        bbox.x1,
+                        bbox.y1,
+                    ]);
+                }
                 content.x_object(xobj_name);
                 content.restore_state();
 
@@ -721,12 +724,7 @@ impl Render for usvg::Image {
                 resources.x_objects().pair(xobj_name, image_ref);
                 resources.finish();
 
-                xobject.bbox(Rect::new(
-                    0.0,
-                    0.0,
-                    (rect.x() + rect.width()) as f32,
-                    (rect.y() + rect.height()) as f32,
-                ));
+                xobject.bbox(ctx.c.pdf_rect(rect));
 
                 let scaling = 72.0 / ctx.c.dpi();
                 let mut transform = self.transform.clone();

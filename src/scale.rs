@@ -114,11 +114,13 @@ impl CoordToPdf {
     }
 
     /// Get the offset from the X axis.
+    #[allow(unused)]
     pub fn offset_x(&self) -> f64 {
         self.offset_x
     }
 
     /// Get the offset from the Y axis.
+    #[allow(unused)]
     pub fn offset_y(&self) -> f64 {
         self.offset_y
     }
