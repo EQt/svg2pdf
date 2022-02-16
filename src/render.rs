@@ -15,7 +15,7 @@ use usvg::{
 #[cfg(any(feature = "png", feature = "jpeg"))]
 use {
     image::io::Reader as ImageReader,
-    image::{DynamicImage, GenericImageView, ImageFormat, Rgb, Rgba, Luma},
+    image::{DynamicImage, ImageFormat, Luma, Rgb, Rgba},
     pdf_writer::writers::ImageXObject,
 };
 
