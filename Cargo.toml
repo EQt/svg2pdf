@@ -11,7 +11,7 @@ categories = ["encoding", "graphics", "multimedia"]
 keywords = ["svg", "pdf", "vector-graphics", "conversion"]
 
 [features]
-default = ["png", "jpeg"]
+default = ["png", "jpeg", "cli"]
 png = ["image/png"]
 jpeg = ["image/jpeg"]
 cli = ["clap", "termcolor", "usvg/text", "fontdb"]
