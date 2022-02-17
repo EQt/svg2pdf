@@ -91,7 +91,6 @@ mod tests {
         Ok((tree, coord, rect))
     }
 
-    #[allow(unused)]
     #[test]
     fn draw_path_line() -> Result<()> {
         let (svg, coord, _rect) = tree_coord(
@@ -115,10 +114,9 @@ mod tests {
         let (dx, dy) = (400, -400);
         {
             let trafo = Transform::default();
-            assert_eq!(
-                render(trafo),
-                format!("{x1} {y1} m\n{} {} l", x1 + dx, y1 + dy)
-            );
+            let pdf = format!("{x1} {y1} m\n{} {} l", x1 + dx, y1 + dy);
+            assert_eq!(&pdf, "-10 510 m\n390 110 l");
+            assert_eq!(render(trafo), pdf);
         }
         {
             // translate(130, 80) as in tests/clip_line.svg
@@ -128,6 +126,16 @@ mod tests {
             trafo.translate(tx as _, ty as _);
             let pdf = format!("{xt} {yt} m\n{} {} l", xt + dx, yt + dy);
             assert_eq!(&pdf, "120 430 m\n520 30 l");
+            assert_eq!(render(trafo), pdf);
+        }
+        {
+            // translate(130, -80)
+            let (tx, ty) = (130, -80);
+            let (xt, yt) = (x1 + tx, y1 - ty);
+            let mut trafo = Transform::default();
+            trafo.translate(tx as _, ty as _);
+            let pdf = format!("{xt} {yt} m\n{} {} l", xt + dx, yt + dy);
+            assert_eq!(&pdf, "120 590 m\n520 190 l");
             assert_eq!(render(trafo), pdf);
         }
         Ok(())
