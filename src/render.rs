@@ -19,10 +19,7 @@ use {
     pdf_writer::writers::ImageXObject,
 };
 
-use super::{
-    apply_mask, content_stream, form_xobject, Context, Options,
-    RgbColor, SRGB,
-};
+use super::{apply_mask, content_stream, form_xobject, Context, Options, RgbColor, SRGB};
 use crate::convert_tree_into;
 use crate::defer::{PendingGS, PendingGradient};
 use crate::scale::CoordToPdf;
@@ -577,11 +574,10 @@ impl Render for usvg::Image {
             let image_ref = ctx.alloc_ref();
 
             #[cfg(any(feature = "png", feature = "jpeg"))]
-            let set_image_props =
-                |image: &mut ImageXObject,
-            raster_size: &mut Option<(u32, u32)>,
-            decoded: &DynamicImage,
-            grey: bool| {
+            let set_image_props = |image: &mut ImageXObject,
+                                   raster_size: &mut Option<(u32, u32)>,
+                                   decoded: &DynamicImage,
+                                   grey: bool| {
                 let color = decoded.color();
                 *raster_size = Some((decoded.width(), decoded.height()));
                 image.width(decoded.width() as i32);
