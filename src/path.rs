@@ -102,16 +102,33 @@ mod tests {
             "##,
         )?;
         let child = svg.root().children().last().unwrap();
-        match *child.borrow() {
-            NodeKind::Path(ref path) => {
-                let mut content = Content::new();
-                let path_data = &path.data.0;
-                let transform = Transform::default();
-                draw_path(&path_data, transform, &mut content, &coord);
-                let pdf = String::from_utf8(content.finish())?;
-                assert_eq!(pdf, "-10 510 m\n390 110 l");
-            }
+        let path_data = match *child.borrow() {
+            NodeKind::Path(ref path) => path.data.0.clone(),
             ref node => panic!("expected path, found {node:?}"),
+        };
+        let render = |tr| {
+            let mut content = Content::new();
+            draw_path(&path_data, tr, &mut content, &coord);
+            String::from_utf8(content.finish()).unwrap()
+        };
+        let (x1, y1) = (-10, 500 - (-10));
+        let (dx, dy) = (400, -400);
+        {
+            let trafo = Transform::default();
+            assert_eq!(
+                render(trafo),
+                format!("{x1} {y1} m\n{} {} l", x1 + dx, y1 + dy)
+            );
+        }
+        {
+            // translate(130, 80) as in tests/clip_line.svg
+            let (tx, ty) = (130, 80);
+            let (xt, yt) = (x1 + tx, y1 - ty);
+            let mut trafo = Transform::default();
+            trafo.translate(tx as _, ty as _);
+            let pdf = format!("{xt} {yt} m\n{} {} l", xt + dx, yt + dy);
+            assert_eq!(&pdf, "120 430 m\n520 30 l");
+            assert_eq!(render(trafo), pdf);
         }
         Ok(())
     }
