@@ -486,29 +486,6 @@ fn content_stream<'a>(
     content.finish()
 }
 
-/// Draw a clipping path into a content stream.
-fn apply_clip_path(path_id: Option<&String>, content: &mut Content, ctx: &mut Context) {
-    if let Some(clip_path) = path_id.and_then(|id| ctx.tree.defs_by_id(id)) {
-        if let NodeKind::ClipPath(ref path) = *clip_path.borrow() {
-            apply_clip_path(path.clip_path.as_ref(), content, ctx);
-
-            for child in clip_path.children() {
-                match *child.borrow() {
-                    NodeKind::Path(ref path) => {
-                        draw_path(&path.data.0, path.transform, content, &ctx.c);
-                        content.clip_nonzero();
-                        content.end_path();
-                    }
-                    NodeKind::ClipPath(_) => {}
-                    _ => unreachable!(),
-                }
-            }
-        } else {
-            unreachable!();
-        }
-    }
-}
-
 /// Prepare a mask to be written to the file. This will calculate the metadata
 /// and create a `pending_group`.
 fn apply_mask(
