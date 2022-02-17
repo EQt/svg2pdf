@@ -43,9 +43,9 @@ use pdf_writer::{Content, Finish, Name, PdfWriter, Rect, Ref, TextStr, Writer};
 use usvg::{NodeExt, NodeKind, Opacity, Stop, Tree};
 
 mod defer;
+mod path;
 mod render;
 mod scale;
-mod path;
 
 use defer::*;
 use render::*;

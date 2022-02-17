@@ -22,8 +22,8 @@ use {
 use super::{apply_mask, content_stream, form_xobject, Context, Options, RgbColor, SRGB};
 use crate::convert_tree_into;
 use crate::defer::{PendingGS, PendingGradient};
+use crate::path::{apply_clip_path, draw_path};
 use crate::scale::CoordToPdf;
-use crate::path::draw_path;
 
 /// Write the appropriate instructions for a node into the content stream.
 ///
@@ -483,29 +483,6 @@ fn prep_pattern(
 
     pdf_pattern.matrix(matrix);
     ctx.pending_patterns.push((num, pattern_ref))
-}
-
-/// Draw a clipping path into a content stream.
-fn apply_clip_path(path_id: Option<&String>, content: &mut Content, ctx: &mut Context) {
-    if let Some(clip_path) = path_id.and_then(|id| ctx.tree.defs_by_id(id)) {
-        if let NodeKind::ClipPath(ref path) = *clip_path.borrow() {
-            apply_clip_path(path.clip_path.as_ref(), content, ctx);
-
-            for child in clip_path.children() {
-                match *child.borrow() {
-                    NodeKind::Path(ref path) => {
-                        draw_path(&path.data.0, path.transform, content, &ctx.c);
-                        content.clip_nonzero();
-                        content.end_path();
-                    }
-                    NodeKind::ClipPath(_) => {}
-                    _ => unreachable!(),
-                }
-            }
-        } else {
-            unreachable!();
-        }
-    }
 }
 
 impl Render for usvg::Group {
