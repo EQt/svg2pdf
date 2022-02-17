@@ -40,9 +40,10 @@ pub(crate) fn apply_clip_path(
     ctx: &mut Context,
 ) {
     if let Some(clip_path) = path_id.and_then(|id| ctx.tree.defs_by_id(id)) {
+        dbg!(&clip_path);
         if let NodeKind::ClipPath(ref path) = *clip_path.borrow() {
             apply_clip_path(path.clip_path.as_ref(), content, ctx);
-
+            dbg!(clip_path.children().collect::<Vec<_>>());
             for child in clip_path.children() {
                 match *child.borrow() {
                     NodeKind::Path(ref path) => {
