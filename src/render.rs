@@ -9,7 +9,7 @@ use pdf_writer::writers::Shading;
 use pdf_writer::{Content, Filter, Finish, Name, PdfWriter, Ref, Writer};
 use usvg::{
     Align, AspectRatio, FillRule, ImageKind, LineCap, LineJoin, Node, NodeExt, NodeKind,
-    Paint, PathSegment, Pattern, Transform, Units, ViewBox, Visibility,
+    Paint, Pattern, Transform, Units, ViewBox, Visibility,
 };
 
 #[cfg(any(feature = "png", feature = "jpeg"))]
@@ -23,6 +23,7 @@ use super::{apply_mask, content_stream, form_xobject, Context, Options, RgbColor
 use crate::convert_tree_into;
 use crate::defer::{PendingGS, PendingGradient};
 use crate::scale::CoordToPdf;
+use crate::path::draw_path;
 
 /// Write the appropriate instructions for a node into the content stream.
 ///
@@ -515,6 +516,7 @@ impl Render for usvg::Group {
         content: &mut Content,
         ctx: &mut Context,
     ) {
+        dbg!(self);
         ctx.push();
 
         let group_ref = ctx.alloc_ref();
@@ -769,37 +771,6 @@ impl Render for usvg::Image {
             let (x, y) = ctx.c.point((rect.x(), rect.y()));
             content.move_to(x, y);
             content.x_object(Name(name.as_bytes()));
-        }
-    }
-}
-
-/// Draw a path into a content stream. Does close the path but not perform any
-/// drawing operators.
-pub fn draw_path(
-    path_data: &[PathSegment],
-    transform: Transform,
-    content: &mut Content,
-    c: &CoordToPdf,
-) {
-    for &operation in path_data {
-        match operation {
-            PathSegment::MoveTo { x, y } => {
-                let (x, y) = c.point(transform.apply(x, y));
-                content.move_to(x, y);
-            }
-            PathSegment::LineTo { x, y } => {
-                let (x, y) = c.point(transform.apply(x, y));
-                content.line_to(x, y);
-            }
-            PathSegment::CurveTo { x1, y1, x2, y2, x, y } => {
-                let (x1, y1) = c.point(transform.apply(x1, y1));
-                let (x2, y2) = c.point(transform.apply(x2, y2));
-                let (x, y) = c.point(transform.apply(x, y));
-                content.cubic_to(x1, y1, x2, y2, x, y);
-            }
-            PathSegment::ClosePath => {
-                content.close_path();
-            }
         }
     }
 }

@@ -45,6 +45,7 @@ use usvg::{NodeExt, NodeKind, Opacity, Stop, Tree};
 mod defer;
 mod render;
 mod scale;
+mod path;
 
 use defer::*;
 use render::*;
