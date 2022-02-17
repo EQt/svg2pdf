@@ -493,7 +493,6 @@ impl Render for usvg::Group {
         content: &mut Content,
         ctx: &mut Context,
     ) {
-        dbg!(self);
         ctx.push();
 
         let group_ref = ctx.alloc_ref();
@@ -516,7 +515,7 @@ impl Render for usvg::Group {
         let name = format!("xo{}", num);
         content.save_state();
 
-        apply_clip_path(self.clip_path.as_ref(), content, ctx);
+        apply_clip_path(self.clip_path.as_ref(), content, ctx, self.transform);
 
         if let Some(reference) = apply_mask(self.mask.as_ref(), bbox, pdf_bbox, ctx) {
             let num = ctx.alloc_gs();
