@@ -13,17 +13,18 @@ pub fn draw_path(
     for &operation in path_data {
         match operation {
             PathSegment::MoveTo { x, y } => {
+                if !transform.is_default() {
+                    // dbg!(&(x, y), (transform.e, transform.f));
+                }
                 let (x, y) = c.point(transform.apply(x, y));
+                if !transform.is_default() {
+                    dbg!(&((x, y), transform));
+                }
                 content.move_to(x, y);
             }
             PathSegment::LineTo { x, y } => {
-                if !transform.is_default() {
-                    dbg!(transform, &(x, y), transform.apply(x, y));
-                }
+                // dbg!(&operation, &(x, y));
                 let (x, y) = c.point(transform.apply(x, y));
-                if !transform.is_default() {
-                    dbg!(&(x, y));
-                }
                 content.line_to(x, y);
             }
             PathSegment::CurveTo { x1, y1, x2, y2, x, y } => {
@@ -36,6 +37,23 @@ pub fn draw_path(
                 content.close_path();
             }
         }
+    }
+}
+
+trait ToArray {
+    fn to_arr(&self) -> [f64; 6];
+}
+
+impl ToArray for Transform {
+    fn to_arr(&self) -> [f64; 6] {
+        [
+            self.a, 
+            self.b, 
+            self.c, 
+            self.d, 
+            self.e, 
+            self.f,
+        ]
     }
 }
 
@@ -52,11 +70,15 @@ pub(crate) fn apply_clip_path(
             for child in clip_path.children() {
                 match *child.borrow() {
                     NodeKind::Path(ref path) => {
-                        let mut trafo = path.transform.clone();
-                        trafo.append(&transform);
-                        dbg!(trafo);
-                        draw_path(&path.data.0, trafo, content, &ctx.c);
+                        #[allow(unused_mut)]
+                        let mut trafo = path.transform;
+                        trafo.prepend(&transform);
+                        #[allow(unused_mut)]
+                        let mut c = ctx.c.clone();
+                        // c.transform(transform.to_arr());
+                        draw_path(&path.data.0, trafo, content, &c);
                         content.clip_nonzero();
+                        // content.stroke();
                         content.end_path();
                     }
                     NodeKind::ClipPath(_) => {}

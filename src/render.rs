@@ -40,6 +40,8 @@ pub(crate) trait Render {
     );
 }
 
+include!("debug.rs");
+
 impl Render for usvg::Path {
     fn render(
         &self,
@@ -52,10 +54,27 @@ impl Render for usvg::Path {
             return;
         }
 
+        {
+            if let NodeKind::Path(ref path) = *node.borrow() {
+                ddbg!(self.transform);
+                ddbg!(path.transform);
+            } else {
+                unreachable!();
+            }
+        }
+
         let bbox = node
             .calculate_bbox()
             .and_then(|b| b.to_rect())
             .unwrap_or_else(|| usvg::Rect::new(0.0, 0.0, 1.0, 1.0).unwrap());
+        ddbg!(self.data.bbox());
+        ddbg!(self.stroke.as_ref());
+        dbg!(self.data.bbox_with_transform(node.abs_transform(), self.stroke.as_ref()));
+        ddbg!(&self.data.0);
+        for anc in node.ancestors() {
+            println!("anc: {:?} trafo: {:?}", anc.transform(), *anc.borrow());
+        }
+        ddbg!(node.abs_transform());
 
         let (fill_gradient, fill_g_alpha) =
             get_gradient(self.fill.as_ref().map(|fill| &fill.paint), ctx);
