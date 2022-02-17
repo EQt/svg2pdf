@@ -13,13 +13,7 @@ pub fn draw_path(
     for &operation in path_data {
         match operation {
             PathSegment::MoveTo { x, y } => {
-                if !transform.is_default() {
-                    // dbg!(&(x, y), (transform.e, transform.f));
-                }
                 let (x, y) = c.point(transform.apply(x, y));
-                if !transform.is_default() {
-                    dbg!(&((x, y), transform));
-                }
                 content.move_to(x, y);
             }
             PathSegment::LineTo { x, y } => {
