@@ -40,23 +40,6 @@ pub fn draw_path(
     }
 }
 
-trait ToArray {
-    fn to_arr(&self) -> [f64; 6];
-}
-
-impl ToArray for Transform {
-    fn to_arr(&self) -> [f64; 6] {
-        [
-            self.a, 
-            self.b, 
-            self.c, 
-            self.d, 
-            self.e, 
-            self.f,
-        ]
-    }
-}
-
 /// Draw a clipping path into a content stream.
 pub(crate) fn apply_clip_path(
     path_id: Option<&String>,

@@ -41,6 +41,7 @@ pub(crate) trait Render {
 }
 
 include!("debug.rs");
+include!("toarr.rs");
 
 impl Render for usvg::Path {
     fn render(
@@ -74,8 +75,9 @@ impl Render for usvg::Path {
         for anc in node.ancestors() {
             println!("anc: {:?} trafo: {:?}", anc.transform(), *anc.borrow());
         }
-        ddbg!(node.abs_transform());
-
+        let trafo = node.abs_transform();
+        let c = ctx.c;
+        ctx.c.transform(trafo.to_arr());
         let (fill_gradient, fill_g_alpha) =
             get_gradient(self.fill.as_ref().map(|fill| &fill.paint), ctx);
 
@@ -124,6 +126,7 @@ impl Render for usvg::Path {
                 ctx,
             )
         }
+        ctx.c = c;
     }
 }
 
