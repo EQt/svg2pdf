@@ -70,8 +70,11 @@ impl Render for usvg::Path {
             .unwrap_or_else(|| usvg::Rect::new(0.0, 0.0, 1.0, 1.0).unwrap());
         ddbg!(self.data.bbox());
         ddbg!(self.stroke.as_ref());
+        dbg!(self.data.bbox_with_transform(node.abs_transform(), self.stroke.as_ref()));
         ddbg!(&self.data.0);
-
+        for anc in node.ancestors() {
+            println!("anc: {:?} trafo: {:?}", anc.transform(), *anc.borrow());
+        }
         let trafo = node.abs_transform();
         let c = ctx.c;
         ctx.c.transform(trafo.to_arr());
