@@ -745,9 +745,16 @@ impl Render for usvg::Image {
                 let scaling = 72.0 / ctx.c.dpi();
                 let mut transform = self.transform.clone();
                 transform.scale(scaling, scaling);
-                let page_height: f64 = ctx.c.point((0.0, 0.0)).1 as _;
-                transform.f = page_height - rect.height() - transform.f;
-                // dbg!(ctx.c, self, transform);
+                let (offset_x, page_height) = ctx.c.point((0.0, 0.0));
+                transform.e += offset_x as f64;
+                transform.f = page_height as f64 - rect.height() - transform.f;
+                dbg!(
+                    offset_x,
+                    bbox,
+                    ctx.c,
+                    (self.transform.e, self.transform.e),
+                    (transform.e, transform.f)
+                );
                 xobject.matrix([
                     transform.a as f32,
                     transform.b as f32,
