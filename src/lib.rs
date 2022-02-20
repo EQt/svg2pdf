@@ -499,7 +499,8 @@ fn apply_clip_path(path_id: Option<&String>, content: &mut Content, ctx: &mut Co
                 match *child.borrow() {
                     NodeKind::Path(ref path) => {
                         draw_path(&path.data.0, path.transform, content, &ctx.c);
-                        content.clip_nonzero();
+                        // content.clip_nonzero();
+                        content.stroke();
                         content.end_path();
                     }
                     NodeKind::ClipPath(_) => {}

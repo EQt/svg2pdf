@@ -502,14 +502,7 @@ impl Render for usvg::Group {
         let child_content = {
             let old_coord = ctx.c;
             let t = self.transform;
-            let mat = [
-                t.a as _,
-                t.b as _,
-                t.c as _,
-                t.d as _,
-                t.e as _,
-                t.f as _,
-            ];
+            let mat = [t.a as _, t.b as _, t.c as _, t.d as _, t.e as _, t.f as _];
             ctx.c.transform(mat);
             let child_content = content_stream(&node, writer, ctx);
             ctx.c = old_coord;
@@ -536,14 +529,7 @@ impl Render for usvg::Group {
         {
             let old_coord = ctx.c;
             let t = self.transform;
-            let mat = [
-                t.a as _,
-                t.b as _,
-                t.c as _,
-                t.d as _,
-                t.e as _,
-                t.f as _,
-            ];
+            let mat = [t.a as _, t.b as _, t.c as _, t.d as _, t.e as _, t.f as _];
             ctx.c.transform(mat);
             apply_clip_path(self.clip_path.as_ref(), content, ctx);
             ctx.c = old_coord;
@@ -749,16 +735,19 @@ impl Render for usvg::Image {
                 resources.x_objects().pair(xobj_name, image_ref);
                 resources.finish();
 
-                xobject.bbox(Rect::new(
+                let bbox = Rect::new(
                     0.0,
                     0.0,
                     (rect.x() + rect.width()) as f32,
                     (rect.y() + rect.height()) as f32,
-                ));
-
+                );
+                xobject.bbox(bbox);
                 let scaling = 72.0 / ctx.c.dpi();
                 let mut transform = self.transform.clone();
                 transform.scale(scaling, scaling);
+                let page_height: f64 = ctx.c.point((0.0, 0.0)).1 as _;
+                transform.f = page_height - rect.height() - transform.f;
+                // dbg!(ctx.c, self, transform);
                 xobject.matrix([
                     transform.a as f32,
                     transform.b as f32,
