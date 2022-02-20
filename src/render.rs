@@ -15,7 +15,7 @@ use usvg::{
 #[cfg(any(feature = "png", feature = "jpeg"))]
 use {
     image::io::Reader as ImageReader,
-    image::{DynamicImage, GenericImageView, ImageFormat, Luma, Rgb, Rgba},
+    image::{DynamicImage, ImageFormat, Luma, Rgb, Rgba},
     pdf_writer::writers::ImageXObject,
 };
 
@@ -611,7 +611,7 @@ impl Render for usvg::Image {
             match &self.kind {
                 #[cfg(feature = "jpeg")]
                 ImageKind::JPEG(buf) => {
-                    let cursor = std::io::Cursor::new(buf);
+                    let cursor = std::io::Cursor::new(buf.as_ref());
                     let decoded = if let Ok(decoded) =
                         ImageReader::with_format(cursor, ImageFormat::Jpeg).decode()
                     {
@@ -626,7 +626,7 @@ impl Render for usvg::Image {
                 }
                 #[cfg(feature = "png")]
                 ImageKind::PNG(buf) => {
-                    let cursor = std::io::Cursor::new(buf);
+                    let cursor = std::io::Cursor::new(buf.as_ref());
                     let decoded = if let Ok(decoded) =
                         ImageReader::with_format(cursor, ImageFormat::Png).decode()
                     {
@@ -705,6 +705,8 @@ impl Render for usvg::Image {
 
                     ctx.next_id = convert_tree_into(tree, opt, writer, image_ref).get();
                 }
+
+                ImageKind::GIF(_) => {}
 
                 #[cfg(any(not(feature = "jpeg"), not(feature = "png")))]
                 _ => {}
