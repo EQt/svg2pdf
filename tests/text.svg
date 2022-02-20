@@ -1,7 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" height="50" width="115">
-  <g font-family="Arial" font-size="20">
-    <text x="5" y="30">
-      Hello World!
-    </text>
+<svg xmlns="http://www.w3.org/2000/svg" height="50" width="115" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <g id="pattern" font-family="Arial" font-size="20">
+      <text x="5" y="30">
+        Hello World!
+      </text>
+    </g>
+  </defs>
+  <g stroke="#000" stroke-width="1">
+    <use xlink:href="#pattern"/>
   </g>
 </svg>
