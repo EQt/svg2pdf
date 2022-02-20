@@ -499,7 +499,22 @@ impl Render for usvg::Group {
         ctx.push();
 
         let group_ref = ctx.alloc_ref();
-        let child_content = content_stream(&node, writer, ctx);
+        let child_content = {
+            let old_coord = ctx.c;
+            let t = self.transform;
+            let mat = [
+                t.a as _,
+                t.b as _,
+                t.c as _,
+                t.d as _,
+                t.e as _,
+                t.f as _,
+            ];
+            ctx.c.transform(mat);
+            let child_content = content_stream(&node, writer, ctx);
+            ctx.c = old_coord;
+            child_content
+        };
 
         let bbox = node
             .calculate_bbox()
@@ -518,7 +533,21 @@ impl Render for usvg::Group {
         let name = format!("xo{}", num);
         content.save_state();
 
-        apply_clip_path(self.clip_path.as_ref(), content, ctx);
+        {
+            let old_coord = ctx.c;
+            let t = self.transform;
+            let mat = [
+                t.a as _,
+                t.b as _,
+                t.c as _,
+                t.d as _,
+                t.e as _,
+                t.f as _,
+            ];
+            ctx.c.transform(mat);
+            apply_clip_path(self.clip_path.as_ref(), content, ctx);
+            ctx.c = old_coord;
+        }
 
         if let Some(reference) = apply_mask(self.mask.as_ref(), bbox, pdf_bbox, ctx) {
             let num = ctx.alloc_gs();
