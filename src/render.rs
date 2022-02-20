@@ -518,7 +518,7 @@ impl Render for usvg::Group {
         ctx.push();
 
         let group_ref = ctx.alloc_ref();
-        let child_content = content_stream(&node, writer, ctx);
+        let child_content = content_stream(node, writer, ctx);
 
         let bbox = node
             .calculate_bbox()
@@ -746,7 +746,7 @@ impl Render for usvg::Image {
                 xobject.bbox(ctx.c.pdf_rect(rect));
 
                 let scaling = 72.0 / ctx.c.dpi();
-                let mut transform = self.transform.clone();
+                let mut transform = self.transform;
                 transform.scale(scaling, scaling);
                 xobject.matrix([
                     transform.a as f32,

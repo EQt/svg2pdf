@@ -57,7 +57,7 @@ pub(crate) fn apply_clip_path(
                         let mut trafo = path.transform;
                         trafo.prepend(&transform);
                         #[allow(unused_mut)]
-                        let mut c = ctx.c.clone();
+                        let mut c = ctx.c;
                         // c.transform(transform.to_arr());
                         draw_path(&path.data.0, trafo, content, &c);
                         content.clip_nonzero();

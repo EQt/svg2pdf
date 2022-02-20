@@ -254,7 +254,7 @@ pub fn convert_str(src: &str, options: Options) -> Result<Vec<u8>, usvg::Error> 
 /// Convert a [`usvg` tree](Tree) to a standalone PDF buffer.
 pub fn convert_tree(tree: &Tree, options: Options) -> Vec<u8> {
     let (c, bbox) = get_sizings(tree, &options);
-    let mut ctx = Context::new(&tree, &bbox, c);
+    let mut ctx = Context::new(tree, &bbox, c);
 
     let mut writer = PdfWriter::new();
     let catalog_id = ctx.alloc_ref();
@@ -382,7 +382,7 @@ pub fn convert_tree_into(
     id: Ref,
 ) -> Ref {
     let (c, bbox) = get_sizings(tree, &options);
-    let mut ctx = Context::new(&tree, &bbox, c);
+    let mut ctx = Context::new(tree, &bbox, c);
 
     ctx.next_id = id.get() + 1;
 
@@ -573,7 +573,7 @@ fn register_functions(
 
     let alpha_ref = if stops.iter().any(|stop| stop.opacity.value() < 1.0) {
         let alpha_ref = ctx.alloc_ref();
-        stops_to_function(writer, alpha_ref, &stops, true);
+        stops_to_function(writer, alpha_ref, stops, true);
         Some(alpha_ref)
     } else {
         None
@@ -631,7 +631,7 @@ fn stops_to_function(
     let mut encode = Vec::with_capacity(2 * (stops.len() - 1));
 
     let stops = if stops[0].offset.value() != 0.0 {
-        let mut appended = stops[0].clone();
+        let mut appended = stops[0];
         appended.offset = usvg::StopOffset::new(0.0);
 
         let mut res = vec![appended];
