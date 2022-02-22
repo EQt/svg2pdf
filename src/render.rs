@@ -742,7 +742,7 @@ impl Render for usvg::Image {
                     (rect.y() + rect.height()) as f32,
                 );
                 xobject.bbox(bbox);
-                let scaling = 72.0 / ctx.c.dpi();
+                let scaling = ctx.c.px_to_pt(1.0) as f64;
                 let mut transform = self.transform.clone();
                 transform.scale(scaling, scaling);
                 let (offset_x, page_height) = ctx.c.point((0.0, 0.0));
